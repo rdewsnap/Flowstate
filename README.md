@@ -29,13 +29,13 @@ Writing style follows the app: casual in Slack and Messages, prose in Mail and D
 ## Quick start (macOS, Apple Silicon)
 
 ```bash
-brew install llama.cpp          # llama-server, for local cleanup
 scripts/fetch-models.sh         # Whisper, Parakeet and a 4B cleanup model (~3.7 GB)
-scripts/build-mac.sh            # builds build/Flowstate.app
+scripts/build-llama-server.sh   # self-contained llama-server for local cleanup
+LLAMA_SERVER=build/llama-server scripts/build-mac.sh   # builds build/Flowstate.app
 open build/Flowstate.app
 ```
 
-Building needs Rust (stable, via rustup) and Xcode 16. On first launch Flowstate asks for microphone and Accessibility access and picks a cleanup mode from your hardware.
+Building needs Rust (stable, via rustup), Xcode 16 and CMake. Homebrew's current `llama.cpp` fails to compile its Metal shaders on macOS 15, so `build-llama-server.sh` builds a pinned version instead. On first launch Flowstate asks for microphone and Accessibility access and picks a cleanup mode from your hardware.
 
 If Fn opens the emoji picker, set **System Settings → Keyboard → Press 🌐 key to → Do Nothing**.
 
@@ -68,7 +68,7 @@ cargo run -p flowstate-bench -- --manifest bench/manifest.example.jsonl --vocab 
 cargo run --release -p flowstate-bench --features whisper,parakeet -- \
   --manifest bench/manifest.jsonl --projects ~/Projects \
   --whisper "$HOME/Library/Application Support/Flowstate/Models/ggml-large-v3-turbo-q5_0.bin" \
-  --llama-server "$(which llama-server)" --local-model path/to/model.gguf
+  --llama-server build/llama-server --local-model path/to/model.gguf
 ```
 
 Record clips as 16 kHz mono WAV, e.g. `ffmpeg -f avfoundation -i ":0" -ar 16000 -ac 1 bench/clips/vocab-01.wav`.
