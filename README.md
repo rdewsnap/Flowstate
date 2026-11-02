@@ -35,6 +35,13 @@ open build/Flowstate.app
 
 Building needs Rust (stable, via rustup), Xcode 16 and CMake. Homebrew's current `llama.cpp` fails to compile its Metal shaders on macOS 15, so `build-llama-server.sh` builds a pinned version instead. On first launch Flowstate asks for microphone and Accessibility access and picks a cleanup mode from your hardware.
 
+Signed builds are published on the Releases page as a `.dmg` and `.zip` once a tagged release exists. A Homebrew tap is coming; once it exists:
+
+```bash
+brew tap rdewsnap/flowstate
+brew install --cask flowstate
+```
+
 If Fn opens the emoji picker, set **System Settings → Keyboard → Press 🌐 key to → Do Nothing**.
 
 | Shortcut | Action |
