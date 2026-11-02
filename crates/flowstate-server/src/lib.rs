@@ -77,6 +77,7 @@ pub fn router(state: AppState) -> Router {
         .route("/v1/search", get(sync::search))
         .route("/v1/cleanup", post(llm::cleanup))
         .route("/v1/summarize", post(llm::summarize))
+        .route("/v1/chat/completions", post(llm::chat_completions))
         .route("/v1/usage", get(llm::usage));
 
     let mcp = Router::new()
