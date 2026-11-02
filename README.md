@@ -93,7 +93,7 @@ For Claude Code: `claude mcp add flowstate -- /Applications/Flowstate.app/Conten
 | `crates/flowstate-ffi` | UniFFI bindings for the native apps |
 | `crates/flowstate-bench` | Benchmark CLI |
 | `apps/mac` | SwiftUI/AppKit menu bar app |
-| `prompts/` | The cleanup prompt, shared by the app and training |
+| `prompts/` | Model prompts: dictation cleanup (shared with training), meeting summaries, note titles |
 | `training/` | Data generation and fine-tuning |
 
 ## License
