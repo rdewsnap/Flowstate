@@ -9,6 +9,7 @@ const MIGRATIONS: &[&str] = &[
     include_str!("../../migrations/sqlite/0002_invites.sql"),
     include_str!("../../migrations/sqlite/0003_notes_meetings.sql"),
     include_str!("../../migrations/sqlite/0004_glossary.sql"),
+    include_str!("../../migrations/sqlite/0005_plans_usage.sql"),
 ];
 
 /// One connection behind a mutex. SQLite serializes writers anyway, and a

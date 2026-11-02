@@ -10,6 +10,7 @@ const MIGRATIONS: &[(i64, &str, &str)] = &[
     (2, "invites", include_str!("../../migrations/postgres/0002_invites.sql")),
     (3, "notes_meetings", include_str!("../../migrations/postgres/0003_notes_meetings.sql")),
     (4, "glossary", include_str!("../../migrations/postgres/0004_glossary.sql")),
+    (5, "plans_usage", include_str!("../../migrations/postgres/0005_plans_usage.sql")),
 ];
 
 pub struct Postgres {

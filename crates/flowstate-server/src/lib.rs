@@ -7,8 +7,10 @@ pub mod config;
 pub mod db;
 pub mod error;
 pub mod glossary;
+pub mod llm;
 pub mod mail;
 pub mod mcp;
+pub mod quota;
 pub mod ratelimit;
 pub mod store;
 pub mod sync;
@@ -36,12 +38,17 @@ pub struct AppState {
     pub config: Arc<Config>,
     pub mailer: Mailer,
     pub limiter: Arc<RateLimiter>,
+    pub http: reqwest::Client,
 }
 
 impl AppState {
     pub async fn new(config: Config, mailer: Mailer) -> anyhow::Result<AppState> {
         let db = Db::connect(&config.database_url).await?;
-        Ok(AppState { db, config: Arc::new(config), mailer, limiter: Arc::new(RateLimiter::default()) })
+        if db.query_opt("SELECT 1 FROM plans WHERE id = $1", args![&config.default_plan]).await?.is_none() {
+            anyhow::bail!("FLOWSTATE_DEFAULT_PLAN {:?} isn't a plan in the plans table", config.default_plan);
+        }
+        let http = reqwest::Client::builder().connect_timeout(std::time::Duration::from_secs(5)).build()?;
+        Ok(AppState { db, config: Arc::new(config), mailer, limiter: Arc::new(RateLimiter::default()), http })
     }
 }
 
@@ -67,7 +74,10 @@ pub fn router(state: AppState) -> Router {
         .route("/v1/meetings", get(sync::list_meetings))
         .route("/v1/meetings/{id}", get(sync::get_meeting).put(sync::put_meeting).delete(sync::delete_meeting))
         .route("/v1/sync", get(sync::pull).post(sync::push))
-        .route("/v1/search", get(sync::search));
+        .route("/v1/search", get(sync::search))
+        .route("/v1/cleanup", post(llm::cleanup))
+        .route("/v1/summarize", post(llm::summarize))
+        .route("/v1/usage", get(llm::usage));
 
     let mcp = Router::new()
         .route_service("/mcp", mcp::service(state.clone()))

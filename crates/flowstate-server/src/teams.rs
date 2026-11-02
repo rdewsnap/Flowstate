@@ -89,15 +89,15 @@ pub async fn create(State(state): State<AppState>, user: AuthUser, Json(req): Js
     let mut batch = Batch::default();
     batch
         .push(
-            "INSERT INTO teams (id, name, personal, created_by, created_at) VALUES ($1, $2, 0, $3, $4)",
-            args![&id, name, &user.user_id, now],
+            "INSERT INTO teams (id, name, personal, created_by, created_at, plan) VALUES ($1, $2, 0, $3, $4, $5)",
+            args![&id, name, &user.user_id, now, &state.config.default_plan],
         )
         .push(
             "INSERT INTO memberships (team_id, user_id, role, created_at) VALUES ($1, $2, 'owner', $3)",
             args![&id, &user.user_id, now],
         );
     state.db.transaction(batch.0).await?;
-    Ok((StatusCode::CREATED, Json(json!({ "id": id, "name": name, "personal": false, "role": "owner" }))))
+    Ok((StatusCode::CREATED, Json(json!({ "id": id, "name": name, "personal": false, "role": "owner", "plan": state.config.default_plan }))))
 }
 
 /// `GET /v1/teams`
