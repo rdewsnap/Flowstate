@@ -9,8 +9,6 @@ Hold Fn, talk, let go. Flowstate types what you meant: no ums, no false starts, 
 - **Fixes what you meant.** Removes fillers and repairs self-corrections across the whole dictation.
 - **Honest fallbacks.** If the cleanup model is slow, missing or makes something up, you get the rule-cleaned text instead of a lost dictation.
 
-> Status: early. The core pipeline, Mac app, benchmark and training pipeline are in place; numbers against other tools come next.
-
 ## How it works
 
 ```
@@ -87,14 +85,6 @@ Record clips as 16 kHz mono WAV, e.g. `ffmpeg -f avfoundation -i ":0" -ar 16000 
 | `apps/mac` | SwiftUI/AppKit menu bar app |
 | `prompts/` | The cleanup prompt, shared by the app and training |
 | `training/` | Data generation and fine-tuning |
-| `DECISIONS.md` | Architecture decisions and why |
-
-## Roadmap
-
-- Windows app on the same core
-- Learning from your edits after insertion
-- Fine-tuned small cleanup model released with open weights
-- Flowstate Cloud: hosted cleanup, sync and mobile, for people who'd rather not manage keys
 
 ## License
 
