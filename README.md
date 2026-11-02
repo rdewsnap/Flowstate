@@ -113,6 +113,10 @@ Flowstate ships a small MCP server, `flowstate-mcp`, so Claude Desktop, Claude C
 
 For Claude Code: `claude mcp add flowstate -- /Applications/Flowstate.app/Contents/MacOS/flowstate-mcp`. Pass `--data-dir` to read a different folder, or `--allow-write` to let the client save notes.
 
+## Sync, teams and self-hosting
+
+Everything above works with no account. If you want notes and meetings on more than one Mac, a glossary shared with your team, or cleanup without running a model or managing a key, the app can sign in to a Flowstate server. The server is in this repo (`crates/flowstate-server`) and runs from one binary with SQLite or Postgres; `crates/flowstate-server/README.md` has a docker compose quickstart. Audio never leaves your Mac in any mode; the server only ever sees text you choose to sync.
+
 ## Repository layout
 
 | Path | What |
@@ -121,6 +125,8 @@ For Claude Code: `claude mcp add flowstate -- /Applications/Flowstate.app/Conten
 | `crates/flowstate-ffi` | UniFFI bindings for the native apps |
 | `crates/flowstate-mcp` | MCP server for notes, meetings and dictation history |
 | `crates/flowstate-bench` | Benchmark CLI |
+| `crates/flowstate-server` | Optional backend: accounts, teams, sync, shared glossary, hosted cleanup, MCP over HTTP |
+| `deploy/` | Dockerfile, docker compose and Fly config for the server |
 | `apps/mac` | SwiftUI/AppKit menu bar app |
 | `apps/mac/Sources/Flowstate/Notes` | Notes bar, Notes window, Markdown export |
 | `apps/mac/Sources/Flowstate/Meetings` | Meeting recording, call detection, summaries view |
