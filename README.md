@@ -103,6 +103,8 @@ Record clips as 16 kHz mono WAV, e.g. `ffmpeg -f avfoundation -i ":0" -ar 16000 
 
 `training/` generates messy/clean pairs with Claude, mixes in Google's Disfl-QA (CC BY 4.0), and LoRA-trains a ~1–2B model with mlx-lm so slower Macs can run good cleanup locally. See the script headers; your own benchmark recordings are never used for training.
 
+It also works with no API key: `prepare_*.py` pull free datasets, `corrupt.py` turns clean text into messy transcripts, and `generate_local.py` uses the local 4B model for the hard cases. Then `build_dataset.py data/*/pairs.jsonl --cap ...` and `LLAMA_CPP=build/llama.cpp-src ./train_mlx.sh`. Results of the first run are in `training/RESULTS.md`.
+
 ## Connect your AI tools
 
 Flowstate ships a small MCP server, `flowstate-mcp`, so Claude Desktop, Claude Code, Cursor and other MCP clients can search your notes, meeting transcripts, summaries, action items and dictation history. It runs over stdio, opens your databases read-only and never touches the network.
