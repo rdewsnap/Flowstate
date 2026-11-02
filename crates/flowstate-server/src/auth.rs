@@ -235,8 +235,8 @@ pub async fn ensure_user(state: &AppState, email: &str) -> ApiResult<String> {
     batch
         .push("INSERT INTO users (id, email, created_at) VALUES ($1, $2, $3)", args![&user_id, email, now])
         .push(
-            "INSERT INTO teams (id, name, personal, created_by, created_at) VALUES ($1, $2, 1, $3, $4)",
-            args![&team_id, "Personal", &user_id, now],
+            "INSERT INTO teams (id, name, personal, created_by, created_at, plan) VALUES ($1, $2, 1, $3, $4, $5)",
+            args![&team_id, "Personal", &user_id, now, &state.config.default_plan],
         )
         .push(
             "INSERT INTO memberships (team_id, user_id, role, created_at) VALUES ($1, $2, 'owner', $3)",
@@ -269,23 +269,25 @@ pub async fn create_api_token(state: &AppState, user_id: &str, name: &str) -> Ap
 pub async fn me(State(state): State<AppState>, user: AuthUser) -> ApiResult<Json<Value>> {
     let u = state.db.query_one("SELECT id, email, created_at FROM users WHERE id = $1", args![&user.user_id]).await?;
     let teams = user_teams(&state.db, &user.user_id).await?;
+    let usage = crate::quota::billing_for(&state.db, &user.user_id).await?;
     Ok(Json(json!({
         "user": { "id": u.text(0), "email": u.text(1), "created_at": u.int(2) },
         "teams": teams,
+        "usage": usage,
     })))
 }
 
 pub async fn user_teams(db: &Db, user_id: &str) -> ApiResult<Vec<Value>> {
     let rows = db
         .query(
-            "SELECT t.id, t.name, t.personal, m.role FROM memberships m JOIN teams t ON t.id = m.team_id
+            "SELECT t.id, t.name, t.personal, m.role, t.plan FROM memberships m JOIN teams t ON t.id = m.team_id
              WHERE m.user_id = $1 ORDER BY t.personal DESC, t.created_at",
             args![user_id],
         )
         .await?;
     Ok(rows
         .iter()
-        .map(|r| json!({ "id": r.text(0), "name": r.text(1), "personal": r.bool(2), "role": r.text(3) }))
+        .map(|r| json!({ "id": r.text(0), "name": r.text(1), "personal": r.bool(2), "role": r.text(3), "plan": r.text(4) }))
         .collect())
 }
 

@@ -1,5 +1,11 @@
-use flowstate_server::{mail::Mailer, AppState, Config};
+use flowstate_server::db::Db;
+use flowstate_server::{mail::Mailer, quota, AppState, Config};
 use tracing_subscriber::EnvFilter;
+
+const USAGE: &str = "usage:
+  flowstate-server                          run the server (configured by FLOWSTATE_* env vars)
+  flowstate-server set-plan <email|team-id> <plan>
+                                            change a personal team's (by email) or a team's plan";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -10,10 +16,31 @@ async fn main() -> anyhow::Result<()> {
         tracing_subscriber::fmt().with_env_filter(filter).init();
     }
 
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match args.iter().map(String::as_str).collect::<Vec<_>>().as_slice() {
+        [] | ["serve"] => serve().await,
+        ["set-plan", target, plan] => {
+            let url = std::env::var("FLOWSTATE_DATABASE_URL").unwrap_or_else(|_| "sqlite://flowstate.db".into());
+            let db = Db::connect(&url).await?;
+            let team_id = quota::set_plan(&db, target, plan).await?;
+            println!("team {team_id} is now on the {plan} plan");
+            Ok(())
+        }
+        _ => {
+            eprintln!("{USAGE}");
+            std::process::exit(2);
+        }
+    }
+}
+
+async fn serve() -> anyhow::Result<()> {
     let config = Config::from_env()?;
     let mailer = Mailer::from_config(config.smtp.as_ref())?;
     if config.smtp.is_none() {
         tracing::warn!("FLOWSTATE_SMTP_HOST not set: sign-in links will be logged instead of emailed");
+    }
+    if config.llm.is_none() {
+        tracing::info!("FLOWSTATE_LLM_API_KEY not set: hosted cleanup and summaries are off");
     }
     let state = AppState::new(config, mailer).await?;
     flowstate_server::serve(state).await
