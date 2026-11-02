@@ -75,6 +75,16 @@ Record clips as 16 kHz mono WAV, e.g. `ffmpeg -f avfoundation -i ":0" -ar 16000 
 
 `training/` generates messy/clean pairs with Claude, mixes in Google's Disfl-QA (CC BY 4.0), and LoRA-trains a ~1–2B model with mlx-lm so slower Macs can run good cleanup locally. See the script headers; your own benchmark recordings are never used for training.
 
+## Connect your AI tools
+
+Flowstate ships a small MCP server, `flowstate-mcp`, so Claude Desktop, Claude Code, Cursor and other MCP clients can search your notes, meeting transcripts, summaries, action items and dictation history. It runs over stdio, opens your databases read-only and never touches the network.
+
+```json
+{"mcpServers":{"flowstate":{"command":"/Applications/Flowstate.app/Contents/MacOS/flowstate-mcp"}}}
+```
+
+For Claude Code: `claude mcp add flowstate -- /Applications/Flowstate.app/Contents/MacOS/flowstate-mcp`. Pass `--data-dir` to read a different folder, or `--allow-write` to let the client save notes.
+
 ## Repository layout
 
 | Path | What |
