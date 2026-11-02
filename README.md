@@ -8,6 +8,12 @@ Hold Fn, talk, let go. Flowstate types what you meant: no ums, no false starts, 
 - **Knows your context.** Learns names from your projects folder, contacts and calendar, and reads the field you're typing into.
 - **Fixes what you meant.** Removes fillers and repairs self-corrections across the whole dictation.
 - **Honest fallbacks.** If the cleanup model is slow, missing or makes something up, you get the rule-cleaned text instead of a lost dictation.
+- **Learns from your edits.** Fix a word Flowstate got wrong and the next dictation spells it your way. Undo it from the pill if it guessed wrong.
+- **Spoken commands.** End a dictation with "scratch that", "new line" or "new paragraph". "Send it" presses Return, if you turn it on.
+- **Notes bar.** ⌥Space opens a floating bar for quick notes, typed or dictated, with search across everything. Notes can be mirrored to a folder as Markdown for Obsidian.
+- **Meetings.** Records your mic and the call's audio, transcribes on your Mac, and writes a summary with decisions and action items. No audio is kept.
+- **Integrations.** Send notes and summaries to Apple Notes, post events to a webhook, add meeting summaries to the calendar event, and drive Flowstate from Shortcuts or `flowstate://` links.
+- **Works with your AI tools.** A bundled MCP server lets MCP clients search your notes and meetings.
 
 ## How it works
 
@@ -22,7 +28,7 @@ mic ─▶ speech-to-text ─▶ filler filter ─▶ vocabulary fixes ─▶ cl
 4. **Cleanup model** handles the judgment calls: `like`, `you know`, restarts, and corrections that reach back several sentences. Runs locally through llama.cpp, or in the cloud on slower machines (text only, never audio).
 5. **Guardrail** rejects any rewrite that adds words you didn't say.
 
-Writing style follows the app: casual in Slack and Messages, prose in Mail and Docs, exact identifiers in editors and terminals.
+Writing style follows the app: casual in Slack and Messages, prose in Mail and Docs, exact identifiers in editors and terminals. You can change the style for a kind of app, or for one app, in Settings → Cleanup.
 
 ## Quick start (macOS, Apple Silicon)
 
@@ -49,6 +55,21 @@ If Fn opens the emoji picker, set **System Settings → Keyboard → Press 🌐 
 | Hold **Fn** | Dictate while held |
 | Double-tap **Fn** | Hands-free; press Fn again to finish |
 | **⌃⌥Z** | Swap the last dictation for exactly what you said |
+| **⌥Space** | Open the notes bar |
+
+## Meetings
+
+Choose **Start meeting…** from the menu, or click Start on the notification Flowstate shows when a call starts during a calendar event. Your microphone is transcribed as "Me" and the call's audio (with Screen Recording permission) as "Others". When you stop, the cleanup model writes a summary with decisions, action items and open questions. Transcripts and summaries are searchable from the notes bar and the MCP server.
+
+## Integrations
+
+Settings → Integrations:
+
+- **Apple Notes**: Send to Apple Notes on any note or meeting puts it in a Flowstate folder.
+- **Markdown**: notes, and optionally every finished meeting, are written to a folder with front matter.
+- **Calendar**: a few lines of the summary and a link back to the meeting are added to its event.
+- **Webhook**: `note.created`, `note.updated` and `meeting.finished` as JSON, signed with HMAC-SHA256 in `X-Flowstate-Signature` when you set a secret.
+- **Shortcuts and links**: `flowstate://note?text=…`, `flowstate://meeting/start?title=…`, `flowstate://meeting/stop` and `flowstate://dictate`, plus Shortcuts actions for the same things and Get Last Dictation.
 
 ## Cleanup modes
 
@@ -96,10 +117,14 @@ For Claude Code: `claude mcp add flowstate -- /Applications/Flowstate.app/Conten
 
 | Path | What |
 |---|---|
-| `crates/flowstate-core` | Platform-independent pipeline (Rust) |
+| `crates/flowstate-core` | Platform-independent pipeline (Rust): speech-to-text, filter, vocabulary and learned corrections, cleanup, spoken commands, notes and meeting storage, summaries |
 | `crates/flowstate-ffi` | UniFFI bindings for the native apps |
+| `crates/flowstate-mcp` | MCP server for notes, meetings and dictation history |
 | `crates/flowstate-bench` | Benchmark CLI |
 | `apps/mac` | SwiftUI/AppKit menu bar app |
+| `apps/mac/Sources/Flowstate/Notes` | Notes bar, Notes window, Markdown export |
+| `apps/mac/Sources/Flowstate/Meetings` | Meeting recording, call detection, summaries view |
+| `apps/mac/Sources/Flowstate/Integrations` | Apple Notes, webhook, calendar, `flowstate://` links, Shortcuts actions |
 | `prompts/` | Model prompts: dictation cleanup (shared with training), meeting summaries, note titles |
 | `training/` | Data generation and fine-tuning |
 
