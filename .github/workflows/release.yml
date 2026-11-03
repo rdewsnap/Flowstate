@@ -67,7 +67,7 @@ jobs:
 
       - name: Cache llama-server
         id: llama-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: build/llama-server
           key: llama-server-${{ runner.os }}-${{ runner.arch }}-${{ steps.llama.outputs.ref }}-${{ hashFiles('scripts/build-llama-server.sh') }}
