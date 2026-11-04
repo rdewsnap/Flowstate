@@ -25,3 +25,4 @@ business/
 
 # Agent worktrees
 /.claude/
+.cloudflare/
