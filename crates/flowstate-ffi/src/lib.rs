@@ -100,6 +100,10 @@ pub struct LocalModel {
     pub server_binary: String,
     /// GGUF cleanup model.
     pub model_path: String,
+    /// A smaller, faster GGUF for dictations without self-corrections. Runs
+    /// as a second server; unset or the same as `model_path` means one model
+    /// does everything.
+    pub light_model_path: Option<String>,
 }
 
 #[derive(Clone, Debug, uniffi::Record)]
@@ -842,8 +846,14 @@ fn build_cleaner(mode: CleanupMode, local: Option<&LocalModel>, cloud: Option<&C
         CleanupMode::Raw | CleanupMode::FilterOnly => Ok(None),
         CleanupMode::Local => {
             let local = local.ok_or_else(|| FlowstateError::Setup("local mode needs a cleanup model".into()))?;
-            let cleaner = LocalCleaner::start(LocalConfig::new(&local.server_binary, &local.model_path)).map_err(setup_err)?;
-            Ok(Some(Box::new(cleaner)))
+            let start = |model: &str| LocalCleaner::start(LocalConfig::new(&local.server_binary, model)).map_err(setup_err);
+            let heavy = start(&local.model_path)?;
+            Ok(Some(match local.light_model_path.as_deref() {
+                Some(light) if !light.is_empty() && light != local.model_path => {
+                    Box::new(RoutedCleaner { light: Box::new(start(light)?), heavy: Box::new(heavy) })
+                }
+                _ => Box::new(heavy),
+            }))
         }
         CleanupMode::Cloud => {
             let cloud = cloud.ok_or_else(|| FlowstateError::Setup("cloud mode needs a provider".into()))?;
@@ -867,6 +877,40 @@ fn build_cleaner(mode: CleanupMode, local: Option<&LocalModel>, cloud: Option<&C
                 _ => heavy,
             }))
         }
+    }
+}
+
+/// Implemented by the app to receive the core's debug log lines (cleanup
+/// timings, for one), so they land in the same log file as the app's own.
+#[uniffi::export(callback_interface)]
+pub trait LogSink: Send + Sync {
+    /// Called on whichever thread logged.
+    fn debug(&self, message: String);
+}
+
+struct SinkLogger(Arc<dyn LogSink>);
+
+impl log::Log for SinkLogger {
+    fn enabled(&self, metadata: &log::Metadata) -> bool {
+        metadata.level() <= log::Level::Debug && metadata.target().starts_with("flowstate_core")
+    }
+
+    fn log(&self, record: &log::Record) {
+        if self.enabled(record.metadata()) {
+            self.0.debug(record.args().to_string());
+        }
+    }
+
+    fn flush(&self) {}
+}
+
+/// Send the core's debug logging to `sink`. Only the first call in a process
+/// takes effect.
+#[uniffi::export]
+pub fn set_log_sink(sink: Box<dyn LogSink>) {
+    let logger: &'static SinkLogger = Box::leak(Box::new(SinkLogger(Arc::from(sink))));
+    if log::set_logger(logger).is_ok() {
+        log::set_max_level(log::LevelFilter::Debug);
     }
 }
 

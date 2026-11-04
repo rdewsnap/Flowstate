@@ -20,6 +20,7 @@ final class EngineController: ObservableObject {
     var isReady: Bool { status == .ready }
 
     func load() {
+        setLogSink(sink: CoreLogSink())
         status = .loading
         let config: EngineConfig
         do {
@@ -173,7 +174,7 @@ final class EngineController: ObservableObject {
 
     private func localModel() -> LocalModel? {
         guard let server = ModelLocator.llamaServer, let model = ModelLocator.cleanupModel else { return nil }
-        return LocalModel(serverBinary: server.path, modelPath: model.path)
+        return LocalModel(serverBinary: server.path, modelPath: model.path, lightModelPath: ModelLocator.fastCleanupModel?.path)
     }
 
     private func cloudConfig() -> CloudConfig? {
