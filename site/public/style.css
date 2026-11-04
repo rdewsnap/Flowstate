@@ -56,8 +56,9 @@ th { font-weight: 600; font-size: 0.85rem; color: var(--ink-2); }
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
 }
 .brand { font-family: var(--serif); font-size: 1.35rem; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
-.pill { width: 26px; height: 12px; border-radius: 6px; background: var(--ink); position: relative; display: inline-block; }
-.pill::after { content: ""; position: absolute; right: 4px; top: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.mark .face { fill: var(--ink); }
+.mark .side { fill: var(--ink-2); }
+.mark .legend { stroke: var(--paper); }
 .top nav { display: flex; gap: 22px; font-size: 0.95rem; }
 .top nav a { text-decoration: none; color: var(--ink-2); }
 .top nav a:hover { color: var(--ink); }
@@ -168,3 +169,8 @@ footer nav { display: flex; gap: 18px; }
   .seg { flex: 1; }
   .top nav { gap: 14px; font-size: 0.88rem; }
 }
+
+.why-list { list-style: none; padding: 0; margin: 20px 0 16px; display: grid; gap: 14px; }
+.why-list li { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-2); }
+.why-list li b { font-family: var(--serif); font-weight: 500; font-size: 1.12rem; }
+.why-list li span { color: var(--ink-2); font-size: 0.95rem; line-height: 1.5; }

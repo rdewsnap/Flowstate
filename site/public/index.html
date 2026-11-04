@@ -8,6 +8,9 @@
 <meta property="og:title" content="FnSpeak">
 <meta property="og:url" content="https://fnspeak.com/">
 <link rel="canonical" href="https://fnspeak.com/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:description" content="Dictation that runs on your Mac, knows your names, and gets better every time you correct it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,10 +20,11 @@
 <body>
 
 <header class="top">
-  <a class="brand" href="#"><span class="pill" aria-hidden="true"></span>FnSpeak</a>
+  <a class="brand" href="#"><svg class="mark" viewBox="0 0 64 64" width="24" height="24" aria-hidden="true"><rect x="5" y="10" width="54" height="50" rx="12" class="side"/><rect x="5" y="4" width="54" height="50" rx="12" class="face"/><g class="legend" fill="none" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 46 V31 q0 -5 5 -5"/><path d="M14 37 H22"/><path d="M28 46 V35"/><path d="M28 39 q0 -4 4 -4 q4 0 4 4 V46"/></g></svg>FnSpeak</a>
   <nav>
     <a href="#download">Download</a>
     <a href="#how">How it works</a>
+    <a href="#why">Why this one</a>
     <a href="#bench">Benchmarks</a>
     <a href="#selfhost">Self-host</a>
     <a href="https://github.com/rdewsnap/FnSpeak" rel="noopener">GitHub</a>
@@ -126,6 +130,19 @@ open build/FnSpeak.app</code></pre>
     <li><b>Guardrail</b><span>Rejects any rewrite that adds words you didn't say.</span></li>
   </ol>
   <p class="muted">Cloud mode, if you choose it, sends text only, never audio. Dictations with no self-corrections go to a cheaper model.</p>
+</section>
+
+<section id="why" class="why">
+  <h2>Lots of apps do this. Here's what's different.</h2>
+  <p class="lede-sm">Local Whisper, a cleanup model, per-app tone, learning from corrections: VoiceInk, Handy, OpenWhispr, Superwhisper and Wispr Flow all do some of it, and a few do it well. These are the parts we couldn't find anywhere else.</p>
+  <ul class="why-list">
+    <li><b>It already knows your words before you dictate.</b><span>Names and terms are pre-seeded from your projects folder, Contacts and Calendar, then refined by what you retype. Other apps start from a dictionary you fill in by hand, or read what's on screen at that moment.</span></li>
+    <li><b>It can't put words in your mouth.</b><span>A guardrail rejects any rewrite that adds something you didn't say. If the model is slow, missing or wrong, you get the rule-cleaned transcript instead, and there's an undo on the pill. We didn't find another app with an output check like this.</span></li>
+    <li><b>The cleanup model is open, not a blob.</b><span>The training scripts, data recipe and results are in the repo under MIT. Elsewhere the "refine" step is a closed runtime inside an otherwise open app.</span></li>
+    <li><b>There's a benchmark you can run on anyone.</b><span><code>fnspeak-bench</code> scores word error rate, vocabulary spelling, fillers left behind and self-corrections applied, on your own clips. The unflattering numbers are on this page.</span></li>
+    <li><b>Your AI tools can read your notes, read-only, offline.</b><span>The MCP server in the app bundle makes no network calls and can't write unless you ask it to.</span></li>
+  </ul>
+  <p class="muted small">What they have that we don't, yet: a notarized download, Windows and Linux, speaker names in meeting notes, snippets, and voice-editing selected text. Compared against the apps' own docs and READMEs in November 2026.</p>
 </section>
 
 <section id="bench" class="bench">
