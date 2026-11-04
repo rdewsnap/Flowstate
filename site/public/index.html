@@ -23,7 +23,7 @@
     <a href="#how">How it works</a>
     <a href="#bench">Benchmarks</a>
     <a href="#selfhost">Self-host</a>
-    <a href="https://github.com/rdewsnap/Flowstate" rel="noopener">GitHub</a>
+    <a href="https://github.com/rdewsnap/FnSpeak" rel="noopener">GitHub</a>
   </nav>
 </header>
 
@@ -34,11 +34,11 @@
   <p class="lede">Hold Fn, talk, let go. The text lands in whatever field you were in: fillers gone, false starts fixed, "actually, make it Tuesday" applied. Speech-to-text never leaves your machine. No account.</p>
 
   <div class="cta">
-    <a class="btn primary" id="dl-primary" href="https://github.com/rdewsnap/Flowstate/releases/latest">
+    <a class="btn primary" id="dl-primary" href="https://github.com/rdewsnap/FnSpeak/releases/latest">
       <span>Download for Mac</span>
       <small id="dl-meta">Apple Silicon · macOS 14+ · .dmg</small>
     </a>
-    <a class="btn" href="https://github.com/rdewsnap/Flowstate">Source on GitHub</a>
+    <a class="btn" href="https://github.com/rdewsnap/FnSpeak">Source on GitHub</a>
   </div>
   <p class="fineprint" id="dl-note">Current builds are ad-hoc signed and not notarized. macOS will ask you to approve the app in System Settings → Privacy &amp; Security on first launch. A notarized build and a Homebrew cask are next.</p>
 </section>
@@ -79,24 +79,24 @@
       <p class="muted" id="rel-date">Published 3 Nov 2026</p>
       <table class="assets" id="assets">
         <tbody>
-          <tr><td><a href="https://github.com/rdewsnap/Flowstate/releases/download/v0.1.1/Flowstate-0.1.1.dmg">Flowstate-0.1.1.dmg</a></td><td>51 MB</td><td class="muted">Disk image</td></tr>
-          <tr><td><a href="https://github.com/rdewsnap/Flowstate/releases/download/v0.1.1/Flowstate-0.1.1.zip">Flowstate-0.1.1.zip</a></td><td>46 MB</td><td class="muted">App bundle</td></tr>
-          <tr><td><a href="https://github.com/rdewsnap/Flowstate/releases/download/v0.1.1/SHA256SUMS">SHA256SUMS</a></td><td>172 B</td><td class="muted">Checksums</td></tr>
+          <tr><td><a href="https://github.com/rdewsnap/FnSpeak/releases/download/v0.1.1/Flowstate-0.1.1.dmg">FnSpeak 0.1.1 disk image</a></td><td>51 MB</td><td class="muted">Disk image</td></tr>
+          <tr><td><a href="https://github.com/rdewsnap/FnSpeak/releases/download/v0.1.1/Flowstate-0.1.1.zip">FnSpeak 0.1.1 app bundle</a></td><td>46 MB</td><td class="muted">App bundle</td></tr>
+          <tr><td><a href="https://github.com/rdewsnap/FnSpeak/releases/download/v0.1.1/SHA256SUMS">SHA256SUMS</a></td><td>172 B</td><td class="muted">Checksums</td></tr>
         </tbody>
       </table>
-      <p class="muted small">Requires an Apple Silicon Mac on macOS 14 or later. 16 GB of memory recommended for the local cleanup model; with 8 GB use your own API key, Cloud, or filter-only cleanup. <a href="https://github.com/rdewsnap/Flowstate/releases">All releases</a></p>
+      <p class="muted small">Requires an Apple Silicon Mac on macOS 14 or later. 16 GB of memory recommended for the local cleanup model; with 8 GB use your own API key, Cloud, or filter-only cleanup. <a href="https://github.com/rdewsnap/FnSpeak/releases">All releases</a></p>
     </div>
 
     <div class="dl-card">
       <h3>Homebrew</h3>
-      <pre><code>brew install --cask rdewsnap/flowstate/flowstate</code></pre>
+      <pre><code>brew install --cask rdewsnap/fnspeak/fnspeak</code></pre>
       <p class="muted small">The tap goes live with the first notarized release. Until then, use the disk image above.</p>
 
       <h3>Build from source</h3>
       <pre><code>scripts/fetch-models.sh
 scripts/build-llama-server.sh
 LLAMA_SERVER=build/llama-server scripts/build-mac.sh
-open build/Flowstate.app</code></pre>
+open build/FnSpeak.app</code></pre>
       <p class="muted small">Rust (rustup), Xcode 16 and CMake. The first script fetches Whisper, Parakeet and a 4B cleanup model, about 3.7 GB.</p>
     </div>
   </div>
@@ -130,7 +130,7 @@ open build/Flowstate.app</code></pre>
 
 <section id="bench" class="bench">
   <h2>Is it any good?</h2>
-  <p class="lede-sm"><code>flowstate-bench</code> scores the pipeline on word error rate, whether your vocabulary came out spelled right, fillers left behind, and whether self-corrections were applied. The numbers below are from the first training run of a small cleanup model, including the ones that aren't flattering. Run it on your own voice; the clips and manifests are in the repo.</p>
+  <p class="lede-sm"><code>fnspeak-bench</code> scores the pipeline on word error rate, whether your vocabulary came out spelled right, fillers left behind, and whether self-corrections were applied. The numbers below are from the first training run of a small cleanup model, including the ones that aren't flattering. Run it on your own voice; the clips and manifests are in the repo.</p>
   <p class="lede-sm">Short version: the 4B baseline gets 1.1% word error rate on the 11 TTS clips. The 1.7B model I fine-tuned gets 2.2% at about half the latency (167 ms against 301 ms), and on the 200 held-out validation pairs it beats the 4B, which falls back to the rule filter 13 times. The validation set follows the training data's conventions, so take that second number with salt.</p>
 
 
@@ -163,7 +163,7 @@ open build/Flowstate.app</code></pre>
   <details class="tableview">
     <summary>Full results table</summary>
     <table id="results"></table>
-    <p class="muted small">The validation set's references follow the training data's conventions, so it favours the fine-tunes. 4B fallbacks are guardrail rejections. Source: <a href="https://github.com/rdewsnap/Flowstate/blob/main/training/RESULTS.md">training/RESULTS.md</a>.</p>
+    <p class="muted small">The validation set's references follow the training data's conventions, so it favours the fine-tunes. 4B fallbacks are guardrail rejections. Source: <a href="https://github.com/rdewsnap/FnSpeak/blob/main/training/RESULTS.md">training/RESULTS.md</a>.</p>
   </details>
 
   <figure class="chart wide">
@@ -191,8 +191,8 @@ open build/Flowstate.app</code></pre>
 
 <section class="mcp">
   <h2>Connect an AI assistant</h2>
-  <pre><code>{"mcpServers":{"flowstate":{"command":"/Applications/Flowstate.app/Contents/MacOS/flowstate-mcp"}}}</code></pre>
-  <p class="muted small">Or for Claude Code: <code>claude mcp add flowstate -- /Applications/Flowstate.app/Contents/MacOS/flowstate-mcp</code>. Add <code>--allow-write</code> to let the assistant save notes.</p>
+  <pre><code>{"mcpServers":{"fnspeak":{"command":"/Applications/FnSpeak.app/Contents/MacOS/fnspeak-mcp"}}}</code></pre>
+  <p class="muted small">Or for Claude Code: <code>claude mcp add fnspeak -- /Applications/FnSpeak.app/Contents/MacOS/fnspeak-mcp</code>. Add <code>--allow-write</code> to let the assistant save notes.</p>
 </section>
 
 </main>
@@ -202,11 +202,11 @@ open build/Flowstate.app</code></pre>
     <b>FnSpeak</b> is MIT licensed. Built by Ryan Dewsnap because the paid version was doing something a Mac can do itself.
   </div>
   <nav>
-    <a href="https://github.com/rdewsnap/Flowstate">Source</a>
-    <a href="https://github.com/rdewsnap/Flowstate/releases">Releases</a>
-    <a href="https://github.com/rdewsnap/Flowstate/issues">Issues</a>
-    <a href="https://github.com/rdewsnap/Flowstate/blob/main/CONTRIBUTING.md">Contributing</a>
-    <a href="https://github.com/rdewsnap/Flowstate/blob/main/LICENSE">License</a>
+    <a href="https://github.com/rdewsnap/FnSpeak">Source</a>
+    <a href="https://github.com/rdewsnap/FnSpeak/releases">Releases</a>
+    <a href="https://github.com/rdewsnap/FnSpeak/issues">Issues</a>
+    <a href="https://github.com/rdewsnap/FnSpeak/blob/main/CONTRIBUTING.md">Contributing</a>
+    <a href="https://github.com/rdewsnap/FnSpeak/blob/main/LICENSE">License</a>
   </nav>
 </footer>
 

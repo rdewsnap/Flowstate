@@ -1,8 +1,8 @@
 // Data from training/RESULTS.md. Keep this in sync when results change.
 const MODELS = [
   { key: "4b",   name: "Qwen3-4B (baseline)",     color: "var(--s1)" },
-  { key: "1.7b", name: "flowstate-cleanup 1.7B",  color: "var(--s2)" },
-  { key: "0.6b", name: "flowstate-cleanup 0.6B",  color: "var(--s3)" },
+  { key: "1.7b", name: "fnspeak-cleanup 1.7B",  color: "var(--s2)" },
+  { key: "0.6b", name: "fnspeak-cleanup 0.6B",  color: "var(--s3)" },
 ];
 const SETS = {
   tts:   { label: "11 TTS clips, Whisper", clips: 11, rows: {
@@ -157,7 +157,7 @@ render(); scatter($("#c-scatter")); dataChart($("#c-data")); legend(); table();
 // Latest release from GitHub; falls back to the baked-in release if offline or rate-limited.
 (async () => {
   try {
-    const r = await fetch("https://api.github.com/repos/rdewsnap/Flowstate/releases/latest", { headers: { Accept: "application/vnd.github+json" } });
+    const r = await fetch("https://api.github.com/repos/rdewsnap/FnSpeak/releases/latest", { headers: { Accept: "application/vnd.github+json" } });
     if (!r.ok) return;
     const rel = await r.json();
     const assets = Array.isArray(rel.assets) ? rel.assets : [];
