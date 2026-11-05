@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Sign with a Developer ID and notarize a Flowstate.app or a .dmg.
+# Sign with a Developer ID and notarize a FnSpeak.app or a .dmg.
 #
-#   scripts/notarize.sh build/Flowstate.app    # re-sign (hardened runtime), notarize, staple
-#   scripts/notarize.sh build/Flowstate-0.1.0.dmg   # sign the disk image, notarize, staple
+#   scripts/notarize.sh build/FnSpeak.app    # re-sign (hardened runtime), notarize, staple
+#   scripts/notarize.sh build/FnSpeak-0.1.0.dmg   # sign the disk image, notarize, staple
 #
 # Environment (the same names the release workflow takes from repo secrets):
 #   APPLE_ID                      Apple ID used for notarytool
@@ -14,21 +14,28 @@
 # Locally, if the certificate is already in your keychain you can skip the two
 # DEVELOPER_ID_CERT_* variables and set SIGN_IDENTITY instead, e.g.
 #   SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
+# and keep the notary login in the Keychain instead of the three APPLE_*
+# variables: run this once (it prompts for the app-specific password)
+#   xcrun notarytool store-credentials fnspeak --apple-id you@example.com --team-id TEAMID
+# then
+#   NOTARY_PROFILE=fnspeak scripts/notarize.sh build/FnSpeak.app
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ENTITLEMENTS="$ROOT/apps/mac/Support/Flowstate.entitlements"
+ENTITLEMENTS="$ROOT/apps/mac/Support/FnSpeak.entitlements"
 TARGET="${1:-}"
 
 if [[ -z "$TARGET" || ! -e "$TARGET" ]]; then
-    echo "usage: $0 <Flowstate.app | file.dmg>" >&2
+    echo "usage: $0 <FnSpeak.app | file.dmg>" >&2
     exit 2
 fi
 
 missing=()
-for var in APPLE_ID APPLE_TEAM_ID APPLE_APP_PASSWORD; do
-    [[ -n "${!var:-}" ]] || missing+=("$var")
-done
+if [[ -z "${NOTARY_PROFILE:-}" ]]; then
+    for var in APPLE_ID APPLE_TEAM_ID APPLE_APP_PASSWORD; do
+        [[ -n "${!var:-}" ]] || missing+=("$var")
+    done
+fi
 if [[ -z "${SIGN_IDENTITY:-}" ]]; then
     for var in DEVELOPER_ID_CERT_P12_BASE64 DEVELOPER_ID_CERT_PASSWORD; do
         [[ -n "${!var:-}" ]] || missing+=("$var")
@@ -81,9 +88,13 @@ sign() { codesign --force --timestamp --options runtime --sign "$SIGN_IDENTITY" 
 submit_and_staple() {
     local file="$1"
     echo "==> Submitting $(basename "$file") to Apple notary service"
-    xcrun notarytool submit "$file" \
-        --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" \
-        --wait --timeout 30m
+    if [[ -n "${NOTARY_PROFILE:-}" ]]; then
+        xcrun notarytool submit "$file" --keychain-profile "$NOTARY_PROFILE" --wait --timeout 30m
+    else
+        xcrun notarytool submit "$file" \
+            --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" \
+            --wait --timeout 30m
+    fi
     echo "==> Stapling"
     xcrun stapler staple "${2:-$file}"
 }
@@ -98,7 +109,7 @@ case "$TARGET" in
         if [[ -f "$APP/Contents/Resources/llama-server" ]]; then
             sign "$APP/Contents/Resources/llama-server"
         fi
-        sign "$APP/Contents/MacOS/flowstate-mcp"
+        sign "$APP/Contents/MacOS/fnspeak-mcp"
         sign --entitlements "$ENTITLEMENTS" "$APP"
         codesign --verify --deep --strict --verbose=2 "$APP"
 

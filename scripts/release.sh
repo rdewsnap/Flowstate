@@ -40,21 +40,21 @@ sed -i.bak '/^\[workspace.package\]/,/^\[/ s/^version = ".*"/version = "'"$VERSI
 rm -f Cargo.toml.bak
 
 # Info.plist: marketing version is the release; the build number counts releases.
+# Edited in place rather than through PlistBuddy, which rewrites the whole file.
 build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")"
 if [[ "$build" =~ ^[0-9]+$ ]]; then
     build=$((build + 1))
 else
     build=1
 fi
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$PLIST"
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $build" "$PLIST"
+perl -0pi -e 's|(<key>CFBundleShortVersionString</key>\s*<string>)[^<]*|${1}'"$VERSION"'|; s|(<key>CFBundleVersion</key>\s*<string>)[^<]*|${1}'"$build"'|' "$PLIST"
 
 # Refresh the workspace members' versions in Cargo.lock without touching dependencies.
 cargo update --workspace --offline >/dev/null 2>&1 || cargo update --workspace >/dev/null
 
 git add Cargo.toml Cargo.lock "$PLIST"
 git commit -q -m "Release $TAG"
-git tag -a "$TAG" -m "Flowstate $VERSION"
+git tag -a "$TAG" -m "FnSpeak $VERSION"
 
 echo "Tagged $TAG on $(git rev-parse --short HEAD)."
 echo "Publish it with:"
